@@ -1,0 +1,4 @@
+#!/bin/bash
+set -eu
+
+node_modules/.bin/elm-review --compiler=node_modules/.bin/elm --fix-all

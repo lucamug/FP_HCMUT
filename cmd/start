@@ -1,0 +1,4 @@
+#!/bin/bash
+set -eu
+
+npx elm-watch hot Main
