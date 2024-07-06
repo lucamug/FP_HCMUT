@@ -1,6 +1,6 @@
 # [FP_HCMUT](https://github.com/lucamug/FP_HCMUT/) - Demystifying Functional Programming with Flying Saucer
 
-Run 
+How to start the development environment:
 
 ```shell
 git clone https://github.com/lucamug/FP_HCMUT.git
@@ -24,7 +24,7 @@ npm install -g elm-review
 
 [Parcel](https://parceljs.org/languages/elm), [Vite](https://github.com/hmsk/vite-plugin-elm), and [other systems](https://www.lindsaykwardell.com/blog/setting-up-elm-in-2022) also support Elm.
 
-These are other available commands:
+Other available commands:
 
 * `cmd/format` - Formats all Elm files
 * `cmd/reactor` Uses a web server included in the Elm binary to run a development environment. It requires manual browser refresh.
