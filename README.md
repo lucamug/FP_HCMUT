@@ -1,6 +1,6 @@
 # [FP_HCMUT](https://github.com/lucamug/FP_HCMUT/) - Demystifying Functional Programming with Flying Saucer
 
-How to start the development environment:
+To start the development environment:
 
 ```shell
 git clone https://github.com/lucamug/FP_HCMUT.git
