@@ -1,6 +1,7 @@
 module Main exposing (main)
 
 import Browser
+import Browser.Events
 import Element exposing (..)
 import Element.Background as Background
 import Element.Border as Border
@@ -13,24 +14,28 @@ type alias Model =
     { count : Int }
 
 
-init : Model
+init : ( Model, Cmd msg )
 init =
-    { count = 0 }
+    ( { count = 0 }, Cmd.none )
 
 
 type Msg
     = Increment
     | Decrement
+    | OnAnimationFrame Float
 
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> ( Model, Cmd msg )
 update msg model =
     case msg of
         Increment ->
-            { model | count = model.count + 1 }
+            ( { model | count = model.count + 1 }, Cmd.none )
 
         Decrement ->
-            { model | count = model.count - 1 }
+            ( { model | count = model.count - 1 }, Cmd.none )
+
+        OnAnimationFrame delta ->
+            ( model, Cmd.none )
 
 
 attrsButton : List (Attribute msg)
@@ -53,8 +58,9 @@ view model =
 
 main : Program () Model Msg
 main =
-    Browser.sandbox
-        { init = init
+    Browser.element
+        { init = \_ -> init
         , view = view
         , update = update
+        , subscriptions = \_ -> Browser.Events.onAnimationFrameDelta OnAnimationFrame
         }
