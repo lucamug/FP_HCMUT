@@ -48,38 +48,26 @@ update msg model =
             ( { model | count = model.count - 1 }, Cmd.none )
 
         OnAnimationFrame delta ->
-            case model.direction of
-                Left ->
-                    if model.positionX < 0 then
-                        ( { model
-                            | positionX = model.positionX + 5
-                            , direction = Right
-                          }
-                        , Cmd.none
-                        )
+            ( { model
+                | positionX =
+                    case model.direction of
+                        Left ->
+                            model.positionX - 5
 
-                    else
-                        ( { model
-                            | positionX = model.positionX - 5
-                          }
-                        , Cmd.none
-                        )
-
-                Right ->
+                        Right ->
+                            model.positionX + 5
+                , direction =
                     if model.positionX > 300 then
-                        ( { model
-                            | positionX = model.positionX - 5
-                            , direction = Left
-                          }
-                        , Cmd.none
-                        )
+                        Left
+
+                    else if model.positionX < 0 then
+                        Right
 
                     else
-                        ( { model
-                            | positionX = model.positionX + 5
-                          }
-                        , Cmd.none
-                        )
+                        model.direction
+              }
+            , Cmd.none
+            )
 
 
 attrsButton : List (Attribute msg)
