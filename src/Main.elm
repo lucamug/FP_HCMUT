@@ -27,7 +27,7 @@ type Direction
 
 
 type alias Model =
-    { count : Int
+    { points : Int
     , positionX : Float
     , positionY : Float
     , direction : Direction
@@ -38,7 +38,7 @@ type alias Model =
 
 init : ( Model, Cmd msg )
 init =
-    ( { count = 0
+    ( { points = 30
       , positionX = 0
       , positionY = 0
       , direction = Right
@@ -51,7 +51,7 @@ init =
 
 type Msg
     = Increment
-    | Decrement
+    | Fire
     | OnAnimationFrame Float
     | TogglePause
 
@@ -75,11 +75,18 @@ update : Msg -> Model -> ( Model, Cmd msg )
 update msg model =
     case msg of
         Increment ->
-            ( { model | count = model.count + 1 }, Cmd.none )
+            ( { model | points = model.points + 1 }, Cmd.none )
 
-        Decrement ->
+        Fire ->
             ( { model
                 | aliens = ( model.positionX, model.positionY ) :: model.aliens
+                , points = model.points - 1
+                , state =
+                    if model.points <= 1 then
+                        Over
+
+                    else
+                        model.state
               }
             , Cmd.none
             )
@@ -136,9 +143,10 @@ update msg model =
 attrsButton : List (Attribute msg)
 attrsButton =
     [ Border.width 1
-    , padding 10
-    , Border.rounded 10
+    , paddingXY 20 10
+    , Border.rounded 100
     , Background.color <| rgb 1 1 1
+    , Font.size 40
     ]
 
 
@@ -148,33 +156,64 @@ view model =
         column
             ([ spacing 20
              ]
+                ++ [ inFront <|
+                        el
+                            [ Font.size 150
+                            , moveDown 450
+                            , moveRight 100
+                            ]
+                        <|
+                            text "🪐"
+                   ]
                 ++ List.map
                     (\( alienX, alienY ) ->
                         inFront <|
                             el
                                 [ Font.size 30
-                                , moveRight alienX
-                                , moveDown (alienY + 100)
+                                , moveRight (alienX + 30)
+                                , moveDown (alienY + 120)
                                 ]
                             <|
                                 text "👽"
                     )
                     model.aliens
+                ++ (if model.state == Over then
+                        [ inFront <|
+                            el
+                                (attrsButton
+                                    ++ [ moveDown 200
+                                       , moveRight 50
+                                       ]
+                                )
+                            <|
+                                text "Game Over!"
+                        ]
+
+                    else
+                        []
+                   )
             )
-            [ Input.button attrsButton
-                { onPress = Just TogglePause
-                , label =
-                    text <|
-                        case model.state of
-                            Playing ->
-                                "⏸️"
+            [ row [ spacing 40 ]
+                [ Input.button attrsButton
+                    { onPress = Just Fire
+                    , label = text "👽"
+                    }
+                , Input.button attrsButton
+                    { onPress = Just TogglePause
+                    , label =
+                        text <|
+                            case model.state of
+                                Playing ->
+                                    "⏸️"
 
-                            Over ->
-                                ""
+                                Over ->
+                                    "-"
 
-                            Paused ->
-                                "▶️"
-                }
+                                Paused ->
+                                    "▶️"
+                    }
+                , el attrsButton <| text <| String.fromInt model.points
+                ]
             , Input.button
                 [ moveRight model.positionX
                 , moveDown model.positionY
@@ -188,8 +227,6 @@ view model =
                 , htmlAttribute <| Html.Attributes.style "transition" "transform 100ms"
                 ]
                 { onPress = Just Increment, label = text "🛸" }
-            , text <| String.fromInt model.count
-            , Input.button attrsButton { onPress = Just Decrement, label = text "Decrement" }
             ]
 
 
