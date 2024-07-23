@@ -116,9 +116,13 @@ update msg model =
                     else
                         model.direction
                 , aliens =
-                    List.map
-                        (\( alienX, alienY ) -> ( alienX, alienY + speedAlien ))
-                        model.aliens
+                    model.aliens
+                        |> List.map
+                            (\( alienX, alienY ) -> ( alienX, alienY + speedAlien ))
+                        |> List.filter
+                            (\( _, alienY ) -> alienY < 500)
+                        |> List.filter
+                            (\( alienX, alienY ) -> not (hitTargetEnd ( alienX, alienY )))
               }
             , Cmd.none
             )
@@ -138,6 +142,21 @@ update msg model =
               }
             , Cmd.none
             )
+
+
+hitTargetStart : ( Float, Float ) -> Bool
+hitTargetStart ( alienX, alienY ) =
+    alienY > 320 && within { min = 100, max = 200 } ( alienX, alienY )
+
+
+hitTargetEnd : ( Float, Float ) -> Bool
+hitTargetEnd ( alienX, alienY ) =
+    alienY > 370 && within { min = 100, max = 200 } ( alienX, alienY )
+
+
+within : { min : Float, max : Float } -> ( Float, Float ) -> Bool
+within { min, max } ( alienX, _ ) =
+    min < alienX && alienX < max
 
 
 attrsButton : List (Attribute msg)
@@ -174,7 +193,13 @@ view model =
                                 , moveDown (alienY + 120)
                                 ]
                             <|
-                                text "👽"
+                                text
+                                    (if hitTargetStart ( alienX, alienY ) then
+                                        "💥"
+
+                                     else
+                                        "👽"
+                                    )
                     )
                     model.aliens
                 ++ (if model.state == Over then
