@@ -32,6 +32,7 @@ type alias Model =
     , positionY : Float
     , direction : Direction
     , state : State
+    , aliens : List ( Float, Float )
     }
 
 
@@ -42,6 +43,7 @@ init =
       , positionY = 0
       , direction = Right
       , state = Playing
+      , aliens = []
       }
     , Cmd.none
     )
@@ -61,7 +63,12 @@ speedX =
 
 speedY : Float
 speedY =
-    10
+    2
+
+
+speedAlien : Float
+speedAlien =
+    4
 
 
 update : Msg -> Model -> ( Model, Cmd msg )
@@ -71,7 +78,11 @@ update msg model =
             ( { model | count = model.count + 1 }, Cmd.none )
 
         Decrement ->
-            ( { model | count = model.count - 1 }, Cmd.none )
+            ( { model
+                | aliens = ( model.positionX, model.positionY ) :: model.aliens
+              }
+            , Cmd.none
+            )
 
         OnAnimationFrame delta ->
             ( { model
@@ -97,6 +108,10 @@ update msg model =
 
                     else
                         model.direction
+                , aliens =
+                    List.map
+                        (\( alienX, alienY ) -> ( alienX, alienY + speedAlien ))
+                        model.aliens
               }
             , Cmd.none
             )
@@ -130,7 +145,22 @@ attrsButton =
 view : Model -> Html.Html Msg
 view model =
     layout [ padding 20, Background.color <| rgb 0 0.4 0.6 ] <|
-        column [ spacing 20 ]
+        column
+            ([ spacing 20
+             ]
+                ++ List.map
+                    (\( alienX, alienY ) ->
+                        inFront <|
+                            el
+                                [ Font.size 30
+                                , moveRight alienX
+                                , moveDown (alienY + 100)
+                                ]
+                            <|
+                                text "👽"
+                    )
+                    model.aliens
+            )
             [ Input.button attrsButton
                 { onPress = Just TogglePause
                 , label =
