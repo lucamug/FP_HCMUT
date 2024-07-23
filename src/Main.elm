@@ -19,6 +19,7 @@ type State
     = Playing
     | Over
     | Paused
+    | Won
 
 
 type Direction
@@ -38,7 +39,7 @@ type alias Model =
 
 init : ( Model, Cmd msg )
 init =
-    ( { points = 30
+    ( { points = 10
       , positionX = 0
       , positionY = 0
       , direction = Right
@@ -63,7 +64,7 @@ speedX =
 
 speedY : Float
 speedY =
-    2
+    10
 
 
 speedAlien : Float
@@ -80,18 +81,21 @@ update msg model =
         Fire ->
             ( { model
                 | aliens = ( model.positionX, model.positionY ) :: model.aliens
-                , points = model.points - 1
-                , state =
-                    if model.points <= 1 then
-                        Over
-
-                    else
-                        model.state
               }
             , Cmd.none
             )
 
         OnAnimationFrame delta ->
+            let
+                newPoints =
+                    model.aliens
+                        |> List.map
+                            (\( alienX, alienY ) -> ( alienX, alienY + speedAlien ))
+                        |> List.filter
+                            (\( alienX, alienY ) -> hitTargetEnd ( alienX, alienY ))
+                        |> List.length
+                        |> (\qtyAliensThatHitTarget -> model.points - qtyAliensThatHitTarget)
+            in
             ( { model
                 | positionX =
                     case model.direction of
@@ -123,6 +127,17 @@ update msg model =
                             (\( _, alienY ) -> alienY < 500)
                         |> List.filter
                             (\( alienX, alienY ) -> not (hitTargetEnd ( alienX, alienY )))
+                , points =
+                    newPoints
+                , state =
+                    if newPoints == 0 then
+                        Won
+
+                    else if model.positionY == 330 && model.positionX < 185 then
+                        Over
+
+                    else
+                        model.state
               }
             , Cmd.none
             )
@@ -139,6 +154,9 @@ update msg model =
 
                         Paused ->
                             Playing
+
+                        Won ->
+                            Won
               }
             , Cmd.none
             )
@@ -214,9 +232,28 @@ view model =
                                 text "Game Over!"
                         ]
 
+                    else if model.state == Won then
+                        [ inFront <|
+                            el
+                                (attrsButton
+                                    ++ [ moveDown 200
+                                       , moveRight 50
+                                       ]
+                                )
+                            <|
+                                text "You Win!"
+                        ]
+
                     else
                         []
                    )
+             -- ++ [ inFront <|
+             --         paragraph
+             --             [ moveDown 100, Font.color <| rgb 1 1 1 ]
+             --             [ text <|
+             --                 Debug.toString model
+             --             ]
+             --    ]
             )
             [ row [ spacing 40 ]
                 [ Input.button attrsButton
@@ -236,6 +273,9 @@ view model =
 
                                 Paused ->
                                     "▶️"
+
+                                Won ->
+                                    "-"
                     }
                 , el attrsButton <| text <| String.fromInt model.points
                 ]
@@ -251,7 +291,16 @@ view model =
                         rotate 0.6
                 , htmlAttribute <| Html.Attributes.style "transition" "transform 100ms"
                 ]
-                { onPress = Just Increment, label = text "🛸" }
+                { onPress = Just Increment
+                , label =
+                    text
+                        (if model.state == Over then
+                            "💥"
+
+                         else
+                            "🛸"
+                        )
+                }
             ]
 
 
@@ -271,5 +320,8 @@ main =
                         Sub.none
 
                     Paused ->
+                        Sub.none
+
+                    Won ->
                         Sub.none
         }
