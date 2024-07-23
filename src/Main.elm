@@ -29,6 +29,7 @@ type Direction
 type alias Model =
     { count : Int
     , positionX : Float
+    , positionY : Float
     , direction : Direction
     , state : State
     }
@@ -38,6 +39,7 @@ init : ( Model, Cmd msg )
 init =
     ( { count = 0
       , positionX = 0
+      , positionY = 0
       , direction = Right
       , state = Playing
       }
@@ -50,6 +52,16 @@ type Msg
     | Decrement
     | OnAnimationFrame Float
     | TogglePause
+
+
+speedX : Float
+speedX =
+    5
+
+
+speedY : Float
+speedY =
+    10
 
 
 update : Msg -> Model -> ( Model, Cmd msg )
@@ -66,10 +78,16 @@ update msg model =
                 | positionX =
                     case model.direction of
                         Left ->
-                            model.positionX - 5
+                            model.positionX - speedX
 
                         Right ->
-                            model.positionX + 5
+                            model.positionX + speedX
+                , positionY =
+                    if model.positionX > 270 || model.positionX < 0 then
+                        model.positionY + speedY
+
+                    else
+                        model.positionY
                 , direction =
                     if model.positionX > 270 then
                         Left
@@ -129,6 +147,7 @@ view model =
                 }
             , Input.button
                 [ moveRight model.positionX
+                , moveDown model.positionY
                 , Font.size 100
                 , case model.direction of
                     Left ->
