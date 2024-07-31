@@ -29,3 +29,21 @@ Other available commands:
 * `cmd/format` - Formats all Elm files
 * `cmd/reactor` Uses a web server included in the Elm binary to run a development environment. It requires manual browser refresh.
 * `cmd/review` Run a static code analyzer on the Elm code
+
+
+## Videos
+
+```
+Step 01 04:32 Adds elm-ui
+Step 02 03:07 Moves to Browser.element and Browser.Events.onAnimationFrameDelta
+Step 03 03:10 Moves the button left and right
+Step 04 01:44 Small refactoring
+Step 05 03:01 Adds assets and Pause
+Step 06 02:04 Adds vertical movement
+Step 07 04:11 Adds aliens
+Step 08 05:28 Adds buttons row and planet target
+Step 09 04:15 Adds explosions
+Step 19 06:39 Winning/Loosing logic - THE END
+=============
+Total   38:11
+```
